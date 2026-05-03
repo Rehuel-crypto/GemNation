@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="GEM NATION - Questions fréquentes sur la recharge de diamants Free Fire."/>
+  <title>FAQ – GEM NATION</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>"/>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <section class="hero" style="padding:50px 24px 30px">
+    <div class="hero-badge"><span class="hero-badge-dot"></span> QUESTIONS FRÉQUENTES</div>
+    <h1 class="hero-title" style="font-size:clamp(28px,5vw,48px)">
+      Vos <span class="gold">Questions</span><br/>Nos Réponses
+    </h1>
+    <p class="hero-sub">Tout ce que vous devez savoir sur GEM NATION</p>
+  </section>
+
+  <div class="section" style="max-width:700px">
+    <div id="faqContainer"></div>
+
+    <div class="card card-gold mt-16" style="text-align:center;margin-top:28px">
+      <div style="font-size:16px;font-weight:800;color:var(--green);margin-bottom:8px">
+        Vous n'avez pas trouvé votre réponse ?
+      </div>
+      <div class="gray fs-13 mb-16">Notre équipe répond en moins de 5 minutes</div>
+      <a href="https://wa.me/22870323456" target="_blank" class="btn btn-gold">
+        💬 Contactez-nous sur WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="assets/app.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      initFirebase();
+      document.getElementById('navbar').innerHTML = navbarHTML('faq');
+      document.getElementById('footer').innerHTML = footerHTML();
+
+      const c = document.getElementById('faqContainer');
+      FAQS.forEach((f, i) => {
+        const div = document.createElement('div');
+        div.className = 'faq-item';
+        div.innerHTML = `
+          <div class="faq-question" onclick="toggleFaq(${i})">
+            <div class="faq-q-text">${f.q}</div>
+            <div class="faq-icon" id="faqIcon${i}">+</div>
+          </div>
+          <div class="faq-answer" id="faqAnswer${i}" style="display:none">${f.a}</div>`;
+        c.appendChild(div);
+      });
+    });
+
+    function toggleFaq(i) {
+      const ans = document.getElementById('faqAnswer'+i);
+      const icon = document.getElementById('faqIcon'+i);
+      const isOpen = ans.style.display !== 'none';
+      // Close all
+      document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
+      document.querySelectorAll('.faq-icon').forEach(ic => { ic.textContent='+'; ic.classList.remove('open'); });
+      if (!isOpen) {
+        ans.style.display = 'block';
+        icon.textContent = '+';
+        icon.classList.add('open');
+      }
+    }
+  </script>
+</body>
+</html>

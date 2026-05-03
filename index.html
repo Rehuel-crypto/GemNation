@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="google-site-verification" content="lNlIXOvYlhurS45XSJFegGaf5MQMSKfNMkDIOxD5N5c"/>
+  <meta name="description" content="GEM NATION - Recharge diamants Free Fire rapide et sécurisée. Flooz, T-Money, Wave. Livraison instantanée. Togo et Afrique."/>
+  <meta name="keywords" content="recharge diamants free fire, gem nation, togo, flooz, t-money, wave, diamonds ff, recharge gaming afrique"/>
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>"/>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>"/>
+  <title>GEM NATION – Recharge Free Fire | Togo & Afrique</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      SERVICE EN LIGNE 24H/24
+    </div>
+    <h1 class="hero-title animate-fadeUp">
+      <span class="gold">GEM</span> NATION<br/>
+      <span class="outline">RECHARGE GAMING</span>
+    </h1>
+    <p class="hero-sub animate-fadeUp">
+      🎮 Rechargez vos jeux favoris en quelques minutes · Paiement sécurisé · Livraison instantanée 🎮
+    </p>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow" style="display:none">
+      <div class="stat-card"><div class="stat-num" id="statOrders">—</div><div class="stat-label">Commandes</div></div>
+      <div class="stat-card"><div class="stat-num" id="statRevenue">—</div><div class="stat-label">Revenu FCFA</div></div>
+      <div class="stat-card"><div class="stat-num" id="statDiamonds">—</div><div class="stat-label">Diamants</div></div>
+      <div class="stat-card"><div class="stat-num">97%</div><div class="stat-label">Succès</div></div>
+    </div>
+
+    <div class="stats-row" id="publicStats">
+      <div class="stat-card"><div class="stat-num">1 247+</div><div class="stat-label">Commandes</div></div>
+      <div class="stat-card"><div class="stat-num">893+</div><div class="stat-label">Clients</div></div>
+      <div class="stat-card"><div class="stat-num">2.4M+</div><div class="stat-label">Diamants</div></div>
+      <div class="stat-card"><div class="stat-num">&lt; 5min</div><div class="stat-label">Livraison</div></div>
+    </div>
+  </section>
+
+  <!-- GAMES SELECTION -->
+  <div class="section">
+    <div class="section-title">🎮 Choisissez Votre Jeu</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px" id="gamesContainer"></div>
+    <div class="notice notice-gold mt-16" style="margin-top:20px">
+      <span>⚠️</span>
+      <span><strong>PAIEMENT AVANT RECHARGE</strong> — Codes officiels garantis à 100% · Livraison instantanée ✅</span>
+    </div>
+  </div>
+
+  <!-- TRUST -->
+  <div class="section">
+    <div class="section-title">🛡️ Pourquoi Nous Choisir</div>
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="trust-icon">⚡</div>
+        <div class="trust-title">Livraison Instantanée</div>
+        <div class="trust-desc">Vos diamants livrés en moins de 5 minutes après confirmation du paiement.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">🔒</div>
+        <div class="trust-title">100% Sécurisé</div>
+        <div class="trust-desc">Cartes cadeaux officielles Free Fire. Transaction sécurisée par FedaPay.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">💎</div>
+        <div class="trust-title">Prix Imbattables</div>
+        <div class="trust-desc">Les meilleurs tarifs du marché avec bonus inclus sur chaque forfait.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">🎧</div>
+        <div class="trust-title">Support 24h/24</div>
+        <div class="trust-desc">Notre équipe est disponible sur WhatsApp à tout moment pour vous aider.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="section">
+    <div class="section-title">⭐ Avis Clients</div>
+    <p class="gray fs-13 mb-16">Plus de 893 clients satisfaits en Afrique de l'Ouest</p>
+    <div class="reviews-scroll" id="reviewsContainer"></div>
+  </div>
+
+  <div id="footer"></div>
+
+  <!-- Firebase + FedaPay -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
+  <script src="assets/app.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      initFirebase();
+
+      // Render navbar & footer
+      document.getElementById('navbar').innerHTML = navbarHTML('home');
+      document.getElementById('footer').innerHTML = footerHTML();
+
+      // Render games
+      const GAMES = [
+        { id:"freefire",  name:"Free Fire",       icon:"🔥", tag:"Garena",      color:"#f97316", available:true,  desc:"Diamants Free Fire" },
+        { id:"pubg",      name:"PUBG Mobile",     icon:"🎯", tag:"Tencent",     color:"#facc15", available:false, desc:"UC PUBG Mobile" },
+        { id:"ml",        name:"Mobile Legends",  icon:"⚔️", tag:"Moonton",     color:"#3b82f6", available:false, desc:"Diamonds ML" },
+        { id:"cod",       name:"Call of Duty",    icon:"💥", tag:"Activision",  color:"#22c55e", available:false, desc:"CP Call of Duty" },
+      ];
+
+      const gc = document.getElementById('gamesContainer');
+      GAMES.forEach(g => {
+        gc.innerHTML += `
+          <div onclick="${g.available ? `window.location.href='recharge.html?game=${g.id}'` : 'void(0)'}"
+            style="background:linear-gradient(145deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+              border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:28px 20px;
+              text-align:center;cursor:${g.available?'pointer':'not-allowed'};
+              transition:all 0.3s;position:relative;opacity:${g.available?'1':'0.5'}"
+            onmouseover="if(${g.available})this.style.transform='translateY(-6px)';this.style.borderColor='rgba(245,200,66,0.3)'"
+            onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,0.08)'">
+            ${!g.available ? '<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.1);color:#94a3b8;font-size:9px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;letter-spacing:1px">BIENTÔT DISPONIBLE</div>' : ''}
+            ${g.available ? '<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f5c842,#e8a020);color:#000;font-size:9px;font-weight:900;padding:3px 14px;border-radius:20px;white-space:nowrap;letter-spacing:1px">✅ DISPONIBLE</div>' : ''}
+            <div style="font-size:52px;margin-bottom:14px">${g.icon}</div>
+            <div style="font-family:var(--font-display,serif);font-size:18px;font-weight:900;color:#fff;margin-bottom:6px">${g.name}</div>
+            <div style="font-size:11px;color:#64748b;letter-spacing:1px;margin-bottom:12px">${g.tag}</div>
+            <div style="font-size:12px;color:${g.color};font-weight:700;margin-bottom:16px">${g.desc}</div>
+            ${g.available ? `<button style="width:100%;padding:11px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:1px;background:linear-gradient(135deg,#f5c842,#e8a020);color:#000;transition:all 0.2s">RECHARGER →</button>` : `<button disabled style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);font-size:12px;font-weight:700;background:transparent;color:#475569;cursor:not-allowed">EN PRÉPARATION</button>`}
+          </div>`;
+      });
+
+      // Render reviews
+      const rc = document.getElementById('reviewsContainer');
+      REVIEWS.forEach(r => {
+        rc.innerHTML += `
+          <div class="review-card">
+            <div class="review-stars">${'★'.repeat(r.stars)}</div>
+            <div class="review-text">"${r.text}"</div>
+            <div class="flex-between">
+              <div class="review-author">${r.name}</div>
+              <div class="review-date">${r.date}</div>
+            </div>
+          </div>`;
+      });
+    });
+
+    function onAdminActivated() {
+      document.getElementById('publicStats').style.display = 'none';
+      document.getElementById('statsRow').style.display = 'flex';
+      if (!db) return;
+      db.collection("transactions").get().then(snap => {
+        const txns = snap.docs.map(d => d.data());
+        const rev = txns.filter(t=>t.status==='success').reduce((a,t)=>a+t.price,0);
+        const dia = txns.filter(t=>t.status==='success').reduce((a,t)=>a+(t.diamonds+t.bonus),0);
+        document.getElementById('statOrders').textContent = snap.size;
+        document.getElementById('statRevenue').textContent = rev.toLocaleString();
+        document.getElementById('statDiamonds').textContent = dia.toLocaleString();
+      });
+    }
+    function onAdminDeactivated() {
+      document.getElementById('publicStats').style.display = 'flex';
+      document.getElementById('statsRow').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

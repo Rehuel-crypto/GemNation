@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="GEM NATION - Guide complet pour recharger vos diamants Free Fire en 5 étapes simples."/>
+  <title>Guide – GEM NATION</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>"/>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <section class="hero" style="padding:50px 24px 30px">
+    <div class="hero-badge"><span class="hero-badge-dot"></span> GUIDE COMPLET</div>
+    <h1 class="hero-title" style="font-size:clamp(28px,5vw,48px)">
+      Comment <span class="gold">Recharger</span> ?
+    </h1>
+    <p class="hero-sub">Suivez ces 5 étapes simples pour recevoir vos diamants Free Fire</p>
+  </section>
+
+  <div class="section">
+    <div style="display:flex;flex-direction:column;gap:16px" id="stepsContainer"></div>
+
+    <div class="card card-gold mt-16" style="text-align:center;margin-top:28px">
+      <div style="font-size:16px;font-weight:800;color:var(--green);margin-bottom:8px">🎧 Besoin d'aide ?</div>
+      <div class="gray fs-13 mb-16">Notre équipe répond en moins de 5 minutes sur WhatsApp</div>
+      <a href="https://wa.me/22870323456" target="_blank" class="btn btn-gold">💬 Nous contacter sur WhatsApp</a>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="assets/app.js"></script>
+  <script>
+    const STEPS = [
+      { n:1, icon:"🎮", title:"Choisissez votre forfait", color:"var(--green)",
+        desc:"Sur la page d'accueil, faites glisser les forfaits et cliquez sur ACHETER pour le forfait qui vous convient.",
+        tip:"Le forfait 1 188 💎 est le plus populaire — excellent rapport qualité/prix !" },
+      { n:2, icon:"🆔", title:"Entrez votre UID Free Fire", color:"var(--blue)",
+        desc:"Entrez votre UID Free Fire (identifiant unique à 9 chiffres). Trouvez-le dans Free Fire → Profil → sous votre pseudo.",
+        tip:"Utilisez le bouton COPIER pour éviter les erreurs de saisie." },
+      { n:3, icon:"💳", title:"Choisissez et payez", color:"var(--gold-1)",
+        desc:"Sélectionnez votre opérateur (Flooz, T-Money, Wave...), entrez votre numéro et confirmez le paiement FedaPay.",
+        tip:"Paiement 100% sécurisé par FedaPay — vos données sont protégées." },
+      { n:4, icon:"🎁", title:"Récupérez votre code cadeau", color:"var(--gold-2)",
+        desc:"Après confirmation du paiement, votre code carte cadeau s'affiche automatiquement. Copiez-le immédiatement !",
+        tip:"⚠️ Ce code ne s'affiche qu'UNE SEULE FOIS. Sauvegardez-le avant de fermer la page !" },
+      { n:5, icon:"🚀", title:"Activez sur Shop2game", color:"#c084fc",
+        desc:"Cliquez sur ALLER SUR SHOP2GAME. Entrez votre UID, choisissez le forfait, collez le code et validez. Diamants reçus en moins de 5 minutes !",
+        tip:"Votre UID est déjà copié dans votre presse-papier — collez-le directement." },
+    ];
+
+    const COLORS_RGB = {
+      'var(--green)': '74,222,128',
+      'var(--blue)': '96,165,250',
+      'var(--gold-1)': '245,200,66',
+      'var(--gold-2)': '232,160,32',
+      '#c084fc': '192,132,252',
+    };
+
+    window.addEventListener('load', function() {
+      initFirebase();
+      document.getElementById('navbar').innerHTML = navbarHTML('guide');
+      document.getElementById('footer').innerHTML = footerHTML();
+
+      const c = document.getElementById('stepsContainer');
+      STEPS.forEach(s => {
+        const rgb = COLORS_RGB[s.color] || '245,200,66';
+        c.innerHTML += `
+          <div class="card animate-fadeIn" style="display:flex;gap:16px;align-items:flex-start">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(${rgb},0.1);border:2px solid ${s.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">${s.icon}</div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <div style="background:${s.color};color:#000;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;flex-shrink:0">${s.n}</div>
+                <div style="font-size:16px;font-weight:800;color:var(--white)">${s.title}</div>
+              </div>
+              <div class="gray fs-13" style="line-height:1.7;margin-bottom:10px">${s.desc}</div>
+              <div style="background:rgba(${rgb},0.07);border:1px solid rgba(${rgb},0.2);border-radius:8px;padding:8px 12px;font-size:12px;color:${s.color};font-weight:700">💡 ${s.tip}</div>
+            </div>
+          </div>`;
+      });
+    });
+  </script>
+</body>
+</html>

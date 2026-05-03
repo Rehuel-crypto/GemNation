@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin – GEM NATION</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>"/>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <!-- ACCESS GATE -->
+  <div id="accessGate" style="max-width:420px;margin:60px auto;padding:0 20px;text-align:center;position:relative;z-index:1">
+    <div style="font-size:48px;margin-bottom:16px">🔒</div>
+    <div style="font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--gold-1);margin-bottom:8px">ACCÈS ADMIN</div>
+    <div class="gray fs-13 mb-24">Cette page est réservée aux administrateurs de GEM NATION</div>
+    <div class="input-group">
+      <label class="input-label">MOT DE PASSE</label>
+      <input class="input-field" type="password" id="pwdInput" placeholder="Mot de passe admin" onkeydown="if(event.key==='Enter')checkPwd()"/>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="checkPwd()">🔓 Accéder</button>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel" style="display:none;position:relative;z-index:1;padding:28px 20px 60px;max-width:1100px;margin:0 auto">
+
+    <!-- Header -->
+    <div class="flex-between mb-24">
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--gold-1)">🔓 PANNEAU ADMINISTRATEUR</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Se déconnecter</button>
+    </div>
+
+    <!-- Stats Admin -->
+    <div class="stats-row mb-24" id="adminStats">
+      <div class="stat-card"><div class="stat-num" id="aStat1">—</div><div class="stat-label">Transactions</div></div>
+      <div class="stat-card"><div class="stat-num" id="aStat2">—</div><div class="stat-label">Revenu FCFA</div></div>
+      <div class="stat-card"><div class="stat-num" id="aStat3">—</div><div class="stat-label">Diamants</div></div>
+      <div class="stat-card"><div class="stat-num" id="aStat4">—</div><div class="stat-label">Taux succès</div></div>
+    </div>
+
+    <!-- GIFT CARDS MANAGEMENT -->
+    <div class="admin-panel mb-28">
+      <div class="admin-title">🎁 GESTION DES CODES CARTES CADEAUX</div>
+
+      <!-- Add codes -->
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-start">
+        <select class="input-field" id="pkgSelect" style="width:auto;margin-bottom:0;flex-shrink:0"></select>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:200px">
+          <textarea class="input-field" id="codesInput" style="margin-bottom:0;min-height:80px;font-family:monospace"
+            placeholder="Collez vos codes ici&#10;Un code par ligne :&#10;CODE1234XXXX&#10;CODE5678XXXX"></textarea>
+          <button class="btn btn-gold" id="addCodesBtn" onclick="addCodes()">+ AJOUTER LES CODES</button>
+        </div>
+      </div>
+
+      <!-- Stock display -->
+      <div class="stock-grid" id="stockGrid"></div>
+    </div>
+
+    <!-- TRANSACTIONS HISTORY -->
+    <div>
+      <div class="section-title">📋 HISTORIQUE DES TRANSACTIONS</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>N° TXN</th>
+              <th>UID</th>
+              <th>💎 DIAMANTS</th>
+              <th>CODE CADEAU</th>
+              <th>MONTANT</th>
+              <th>MÉTHODE</th>
+              <th>DATE</th>
+              <th>STATUT</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="8" style="text-align:center;color:var(--gray-4);padding:30px">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-16 gray fs-12 center" id="historyCount"></div>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
+  <script src="assets/app.js"></script>
+  <script>
+    let giftCards = {1:[],2:[],3:[],4:[],5:[]};
+
+    window.addEventListener('load', function() {
+      initFirebase();
+      document.getElementById('navbar').innerHTML = navbarHTML('');
+      document.getElementById('footer').innerHTML = footerHTML();
+
+      // Populate package select
+      const sel = document.getElementById('pkgSelect');
+      PACKAGES.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `${(p.diamonds+p.bonus).toLocaleString()} 💎 — ${p.price.toLocaleString()} FCFA`;
+        sel.appendChild(opt);
+      });
+    });
+
+    function checkPwd() {
+      const pwd = document.getElementById('pwdInput').value;
+      if (pwd === 'admin123') {
+        document.getElementById('accessGate').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        loadAdminData();
+      } else {
+        showToast("Mot de passe incorrect","error");
+      }
+    }
+
+    function logout() {
+      document.getElementById('accessGate').style.display = 'block';
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('pwdInput').value = '';
+    }
+
+    function loadAdminData() {
+      if (!db) { showToast("Firebase non connecté","error"); return; }
+
+      // Listen gift cards
+      db.collection("giftcodes").onSnapshot(snap => {
+        giftCards = {1:[],2:[],3:[],4:[],5:[]};
+        snap.docs.forEach(d => {
+          const data = d.data();
+          if (giftCards[data.pkgId]) giftCards[data.pkgId].push({docId:d.id,...data});
+        });
+        renderStock();
+      });
+
+      // Listen transactions
+      db.collection("transactions").orderBy("timestamp","desc").limit(100)
+        .onSnapshot(snap => {
+          const txns = snap.docs.map(d => ({id:d.id,...d.data()}));
+          renderHistory(txns);
+          renderStats(txns);
+        });
+    }
+
+    function renderStats(txns) {
+      const success = txns.filter(t => t.status === 'success');
+      const rev = success.reduce((a,t) => a + (t.price||0), 0);
+      const dia = success.reduce((a,t) => a + (t.diamonds||0) + (t.bonus||0), 0);
+      const rate = txns.length > 0 ? Math.round(success.length/txns.length*100) : 0;
+      document.getElementById('aStat1').textContent = txns.length;
+      document.getElementById('aStat2').textContent = rev.toLocaleString();
+      document.getElementById('aStat3').textContent = dia.toLocaleString();
+      document.getElementById('aStat4').textContent = rate + '%';
+    }
+
+    function renderStock() {
+      const grid = document.getElementById('stockGrid');
+      grid.innerHTML = '';
+      PACKAGES.forEach(p => {
+        const codes = giftCards[p.id] || [];
+        const avail = codes.filter(c => !c.used).length;
+        const total = p.diamonds + p.bonus;
+        grid.innerHTML += `
+          <div class="stock-card">
+            <div class="stock-header">
+              <div style="font-weight:800;font-size:13px">${total.toLocaleString()} 💎</div>
+              <div class="badge ${avail>0?'badge-success':'badge-error'}">${avail} dispo</div>
+            </div>
+            ${codes.length === 0
+              ? '<div class="gray fs-12">Aucun code ajouté</div>'
+              : codes.map((c,i) => `
+                <div class="code-item">
+                  <span class="code-text ${c.used?'code-used':''}">${c.code}</span>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <span class="badge ${c.used?'badge-error':'badge-success'}">${c.used?'UTILISÉ':'DISPO'}</span>
+                    ${!c.used ? `<button onclick="deleteCode('${c.docId}')" style="background:rgba(248,113,113,0.15);border:none;color:var(--red);cursor:pointer;border-radius:4px;padding:2px 8px;font-size:11px">✕</button>` : ''}
+                  </div>
+                </div>`).join('')
+            }
+          </div>`;
+      });
+    }
+
+    function renderHistory(txns) {
+      const body = document.getElementById('historyBody');
+      if (txns.length === 0) {
+        body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray-4);padding:30px">Aucune transaction</td></tr>';
+        return;
+      }
+      body.innerHTML = txns.map(t => `
+        <tr>
+          <td style="color:var(--gold-1);font-weight:800;font-family:monospace;font-size:12px">${t.id||'—'}</td>
+          <td style="font-family:monospace">${t.uid||'—'}</td>
+          <td style="color:var(--blue);font-weight:700">💎 ${((t.diamonds||0)+(t.bonus||0)).toLocaleString()}</td>
+          <td style="font-family:monospace;color:var(--gold-1);font-size:11px">${t.giftCode||'—'}</td>
+          <td style="font-weight:800">${(t.price||0).toLocaleString()} FCFA</td>
+          <td class="gray">${t.method||'—'}</td>
+          <td class="gray" style="font-size:12px">${t.date||'—'}</td>
+          <td><span class="badge ${t.status==='success'?'badge-success':'badge-error'}">${t.status==='success'?'✓ SUCCÈS':'✗ ÉCHOUÉ'}</span></td>
+        </tr>`).join('');
+      const success = txns.filter(t=>t.status==='success').length;
+      document.getElementById('historyCount').textContent = `${txns.length} transaction(s) · ${success} réussie(s)`;
+    }
+
+    async function addCodes() {
+      const rawCodes = document.getElementById('codesInput').value;
+      const pkgId = parseInt(document.getElementById('pkgSelect').value);
+      const codes = rawCodes.split('\n').map(c=>c.trim()).filter(c=>c.length>0);
+      if (codes.length === 0) { showToast("Entrez au moins un code","error"); return; }
+      if (!db) { showToast("Firebase non connecté","error"); return; }
+
+      try {
+        const batch = db.batch();
+        codes.forEach(code => {
+          const ref = db.collection("giftcodes").doc();
+          batch.set(ref, { code, pkgId, used:false, createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+        });
+        await batch.commit();
+        document.getElementById('codesInput').value = '';
+        showToast(`${codes.length} code(s) ajouté(s) ✅`);
+      } catch(e) {
+        showToast("Erreur lors de l'ajout","error");
+      }
+    }
+
+    async function deleteCode(docId) {
+      if (!db) return;
+      try {
+        await db.collection("giftcodes").doc(docId).delete();
+        showToast("Code supprimé ✅");
+      } catch(e) {
+        showToast("Erreur suppression","error");
+      }
+    }
+  </script>
+</body>
+</html>

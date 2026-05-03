@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="GEM NATION - Recharger vos diamants Free Fire. Choisissez votre forfait et payez en Mobile Money."/>
+  <title>Recharger – GEM NATION</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>"/>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div style="max-width:580px;margin:0 auto;padding:36px 20px 60px;position:relative;z-index:1">
+
+    <!-- Steps -->
+    <div class="steps" id="stepsEl">
+      <div class="step-dot active" id="s1">1</div>
+      <div class="step-line idle" id="l1"></div>
+      <div class="step-dot idle" id="s2">2</div>
+      <div class="step-line idle" id="l2"></div>
+      <div class="step-dot idle" id="s3">✓</div>
+    </div>
+
+    <!-- STEP 1: Choose package -->
+    <div id="step1" class="animate-fadeIn">
+      <div class="card card-gold mb-24">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:20px;color:var(--gold-1)">💎 CHOISIR VOTRE FORFAIT</div>
+        <div class="pkg-scroll" id="pkgChoice"></div>
+        <div id="selectedPkgInfo" style="display:none;margin-top:16px" class="notice notice-gold">
+          <span>✅</span><span id="selectedPkgText"></span>
+        </div>
+      </div>
+
+      <div class="card mb-24">
+        <div class="input-label">UID FREE FIRE *</div>
+        <div style="display:flex;gap:10px;margin-bottom:8px">
+          <input class="input-field" style="margin-bottom:0;flex:1" id="uidInput" placeholder="ex: 123456789" type="number"/>
+          <button class="btn btn-outline btn-sm" id="copyUidBtn" onclick="copyUID()">📋 Copier</button>
+        </div>
+        <div class="notice notice-gold" style="margin-bottom:0">
+          <span>💡</span><span>Profil Free Fire → sous votre pseudo → UID à 9 chiffres</span>
+        </div>
+      </div>
+
+      <button class="btn btn-gold btn-full" onclick="goStep2()">Continuer →</button>
+    </div>
+
+    <!-- STEP 2: Payment -->
+    <div id="step2" style="display:none" class="animate-fadeIn">
+      <div class="card card-gold mb-24">
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:8px;color:var(--gold-1)">💳 RÉCAPITULATIF</div>
+        <div class="summary-box" id="summaryBox"></div>
+        <div class="input-label">MÉTHODE DE PAIEMENT *</div>
+        <div class="method-grid" id="methodGrid"></div>
+        <div class="input-label">NUMÉRO DE TÉLÉPHONE *</div>
+        <input class="input-field" id="phoneInput" placeholder="ex: 90 00 00 00"/>
+        <div class="notice notice-green">
+          <span>🔒</span><span>Paiement 100% sécurisé par FedaPay · Vos données sont protégées</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="goStep1()" style="flex:1">← Retour</button>
+        <button class="btn btn-gold" onclick="startPayment()" style="flex:2" id="payBtn">✅ PAYER MAINTENANT</button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="stepLoading" style="display:none">
+      <div class="spinner-wrap">
+        <div class="spinner"></div>
+        <div class="spinner-text">Traitement du paiement...</div>
+        <div class="gray fs-12">Veuillez ne pas fermer cette page</div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Success -->
+    <div id="step3" style="display:none" class="animate-fadeIn center">
+      <div style="font-size:60px;margin-bottom:16px">✅</div>
+      <div style="font-family:var(--font-display);font-size:26px;font-weight:900;color:var(--green);margin-bottom:8px">Paiement réussi !</div>
+      <div class="gray fs-13 mb-24">Suivez les 3 étapes ci-dessous pour recevoir vos diamants</div>
+
+      <!-- Step A: UID -->
+      <div class="card mb-16" style="text-align:left">
+        <div class="input-label mb-8">ÉTAPE 1 — VOTRE UID FREE FIRE</div>
+        <div class="code-row">
+          <div class="code-box" id="resultUID"></div>
+          <button class="btn btn-outline btn-sm" onclick="copyResultUID()">📋 Copier</button>
+        </div>
+      </div>
+
+      <!-- Step B: Gift code -->
+      <div class="card mb-16" style="text-align:left">
+        <div class="input-label mb-8">ÉTAPE 2 — CODE CARTE CADEAU 🎁</div>
+        <div class="code-row">
+          <div class="code-box" id="resultCode"></div>
+          <button class="btn btn-outline btn-sm" onclick="copyCode()">📋 Copier</button>
+        </div>
+        <div class="notice notice-red mt-16" style="margin-bottom:0">
+          <span>⚠️</span><span>Gardez ce code précieusement — il ne sera plus affiché !</span>
+        </div>
+      </div>
+
+      <!-- Step C: Shop2game -->
+      <div class="card mb-24" style="text-align:left">
+        <div class="input-label mb-8">ÉTAPE 3 — ACTIVER SUR SHOP2GAME</div>
+        <a href="https://shop2game.com/?channel=299999" target="_blank" class="btn btn-gold btn-full mb-16">
+          🎮 ALLER SUR SHOP2GAME →
+        </a>
+        <div class="gray fs-12" style="line-height:1.9">
+          1️⃣ Entrez votre UID Free Fire<br/>
+          2️⃣ Choisissez le forfait <strong id="resultPkg" class="gold"></strong><br/>
+          3️⃣ Entrez le code carte cadeau<br/>
+          4️⃣ Validez → vos diamants arrivent ! 💎
+        </div>
+      </div>
+
+      <!-- Receipt -->
+      <div class="card mb-24" style="text-align:left">
+        <div class="input-label mb-8">RÉCAPITULATIF</div>
+        <div id="receiptContent"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:center">
+        <a href="index.html" class="btn btn-ghost">🏠 Accueil</a>
+        <a href="admin.html" class="btn btn-outline">📋 Historique</a>
+      </div>
+      <div class="mt-16 gray fs-12">
+        Un problème ? <a href="https://wa.me/22870323456" target="_blank" style="color:var(--green);font-weight:700">Contactez WhatsApp →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="footer"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
+  <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
+  <script src="assets/app.js"></script>
+  <script>
+    let selectedPkg = null;
+    let selectedMethod = null;
+    let giftCards = {1:[],2:[],3:[],4:[],5:[]};
+    let currentTxn = null;
+    let uidCopied = false;
+    let codeCopied = false;
+
+    window.addEventListener('load', function() {
+      initFirebase();
+      document.getElementById('navbar').innerHTML = navbarHTML('recharge');
+      document.getElementById('footer').innerHTML = footerHTML();
+
+      // Pre-select package from URL
+      const params = new URLSearchParams(window.location.search);
+      const pkgId = parseInt(params.get('pkg'));
+
+      // Render package choices
+      const pc = document.getElementById('pkgChoice');
+      PACKAGES.forEach(p => {
+        const total = p.diamonds + p.bonus;
+        const div = document.createElement('div');
+        div.className = 'pkg-card' + (pkgId===p.id?' selected':'');
+        div.id = 'pkgCard_'+p.id;
+        div.innerHTML = `
+          ${p.popular ? '<div class="pkg-popular-badge">⭐ POPULAIRE</div>' : ''}
+          <div style="margin-bottom:6px">${diamondSVG(32)}</div>
+          <div class="pkg-diamonds" style="font-size:26px">${total.toLocaleString()}</div>
+          <div class="pkg-label">Diamants</div>
+          <div class="pkg-bonus">${p.diamonds.toLocaleString()} <span>+${p.bonus}</span></div>
+          <div class="pkg-price" style="font-size:15px">${p.price.toLocaleString()} FCFA</div>`;
+        div.onclick = () => selectPkg(p);
+        pc.appendChild(div);
+        if (pkgId === p.id) selectPkg(p);
+      });
+
+      // Render methods
+      const mg = document.getElementById('methodGrid');
+      PAYMENTS.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'method-card';
+        div.id = 'method_'+m.id;
+        div.innerHTML = `<div class="method-icon">${m.icon}</div><div class="method-name">${m.name}</div><div class="method-country">${m.pays}</div>`;
+        div.onclick = () => selectMethod(m);
+        mg.appendChild(div);
+      });
+
+      // Load gift cards from Firebase
+      if (db) {
+        db.collection("giftcodes").onSnapshot(snap => {
+          giftCards = {1:[],2:[],3:[],4:[],5:[]};
+          snap.docs.forEach(d => {
+            const data = d.data();
+            if (giftCards[data.pkgId]) giftCards[data.pkgId].push({docId:d.id,...data});
+          });
+        });
+      }
+    });
+
+    function selectPkg(p) {
+      selectedPkg = p;
+      document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+      const card = document.getElementById('pkgCard_'+p.id);
+      if (card) card.classList.add('selected');
+      const info = document.getElementById('selectedPkgInfo');
+      info.style.display = 'flex';
+      document.getElementById('selectedPkgText').textContent = `Forfait sélectionné : ${(p.diamonds+p.bonus).toLocaleString()} Diamants — ${p.price.toLocaleString()} FCFA`;
+    }
+
+    function selectMethod(m) {
+      selectedMethod = m;
+      document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('method_'+m.id).classList.add('selected');
+    }
+
+    function copyUID() {
+      const uid = document.getElementById('uidInput').value;
+      if (uid) { navigator.clipboard.writeText(uid); showToast("UID copié ✅"); }
+    }
+
+    function goStep2() {
+      if (!selectedPkg) { showToast("Choisissez un forfait","error"); return; }
+      const uid = document.getElementById('uidInput').value.trim();
+      if (!uid) { showToast("Entrez votre UID","error"); return; }
+
+      const total = selectedPkg.diamonds + selectedPkg.bonus;
+      document.getElementById('summaryBox').innerHTML = `
+        <div>
+          <div class="fs-12 gray">Forfait choisi</div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:900;color:var(--gold-1)">${total.toLocaleString()} Diamants</div>
+          <div class="fs-12" style="color:var(--green)">⚡ Livraison &lt; 5 min</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:900">${selectedPkg.price.toLocaleString()} FCFA</div>
+          <div class="fs-12 gray">UID: ${uid}</div>
+          <button class="btn btn-ghost btn-sm mt-16" style="margin-top:6px" onclick="goStep1()">Changer</button>
+        </div>`;
+
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+      updateSteps(2);
+    }
+
+    function goStep1() {
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step1').style.display = 'block';
+      updateSteps(1);
+    }
+
+    function updateSteps(step) {
+      const dots = [null,'s1','s2','s3'];
+      const lines = [null,'l1','l2'];
+      for (let i=1;i<=3;i++) {
+        const d = document.getElementById(dots[i]);
+        if (!d) continue;
+        d.className = 'step-dot ' + (i<step?'done':i===step?'active':'idle');
+        if (i<3) document.getElementById(lines[i]).className = 'step-line '+(i<step?'done':'idle');
+      }
+    }
+
+    async function startPayment() {
+      const uid = document.getElementById('uidInput').value.trim();
+      const phone = document.getElementById('phoneInput').value.trim();
+
+      if (!selectedMethod) { showToast("Choisissez une méthode de paiement","error"); return; }
+      if (!phone) { showToast("Entrez votre numéro de téléphone","error"); return; }
+
+      const available = giftCards[selectedPkg.id] ? giftCards[selectedPkg.id].filter(c=>!c.used) : [];
+      if (available.length === 0) {
+        showToast("Stock épuisé ! Contactez WhatsApp","error");
+        setTimeout(()=>window.open('https://wa.me/22870323456','_blank'),2000);
+        return;
+      }
+
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('stepLoading').style.display = 'block';
+      updateSteps(3);
+
+      FedaPay.init({
+        public_key: FEDAPAY_PUBLIC_KEY,
+        transaction: {
+          amount: selectedPkg.price,
+          description: `GEM NATION - ${(selectedPkg.diamonds+selectedPkg.bonus).toLocaleString()} Diamants FF - UID: ${uid}`,
+        },
+        customer: {
+          phone_number: { number: phone, country: "TG" },
+        },
+        onComplete: async function(resp) {
+          if (resp.reason === FedaPay.DIALOG_DISMISSED) {
+            document.getElementById('stepLoading').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            updateSteps(2);
+            showToast("Paiement annulé","error");
+            return;
+          }
+          if (resp.transaction && resp.transaction.status === "approved") {
+            const codeObj = available[0];
+            if (db) {
+              await db.collection("giftcodes").doc(codeObj.docId).update({
+                used: true, usedBy: uid, usedAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+              const t = {
+                uid, diamonds: selectedPkg.diamonds, bonus: selectedPkg.bonus,
+                price: selectedPkg.price, method: selectedMethod.name,
+                date: new Date().toLocaleString("fr-FR"), status: "success",
+                giftCode: codeObj.code, fedapayId: resp.transaction.id,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+              };
+              const docRef = await db.collection("transactions").add(t);
+              t.id = docRef.id;
+              currentTxn = t;
+            }
+            try {
+              const a=new AudioContext(); const o=a.createOscillator(); const g=a.createGain();
+              o.connect(g); g.connect(a.destination); o.frequency.setValueAtTime(880,a.currentTime);
+              g.gain.setValueAtTime(0.3,a.currentTime); g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.5);
+              o.start(); o.stop(a.currentTime+0.5);
+            } catch(e){}
+            showSuccess(uid, codeObj.code, currentTxn);
+          } else {
+            document.getElementById('stepLoading').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            updateSteps(2);
+            showToast("Paiement échoué. Réessayez.","error");
+          }
+        }
+      }).open();
+    }
+
+    function showSuccess(uid, code, txn) {
+      document.getElementById('stepLoading').style.display = 'none';
+      document.getElementById('step3').style.display = 'block';
+      document.getElementById('resultUID').textContent = uid;
+      document.getElementById('resultCode').textContent = code;
+      document.getElementById('resultPkg').textContent = (selectedPkg.diamonds+selectedPkg.bonus).toLocaleString()+" 💎";
+      if (txn) {
+        document.getElementById('receiptContent').innerHTML = [
+          ['N° Transaction', txn.id||'—'],
+          ['UID', txn.uid],
+          ['Diamants', (txn.diamonds+txn.bonus).toLocaleString()+' 💎'],
+          ['Montant', txn.price.toLocaleString()+' FCFA'],
+          ['Méthode', txn.method],
+          ['Date', txn.date],
+        ].map(([k,v])=>`
+          <div class="flex-between" style="padding:7px 0;border-bottom:var(--border-dark);font-size:13px">
+            <span class="gray">${k}</span><span class="fw-700">${v}</span>
+          </div>`).join('');
+      }
+    }
+
+    function copyResultUID() {
+      navigator.clipboard.writeText(document.getElementById('resultUID').textContent);
+      showToast("UID copié ✅");
+    }
+    function copyCode() {
+      navigator.clipboard.writeText(document.getElementById('resultCode').textContent);
+      showToast("Code copié ✅");
+    }
+  </script>
+</body>
+</html>
