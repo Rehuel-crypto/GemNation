@@ -101,22 +101,39 @@ function navbarHTML(activePage) {
     { href:'recharge.html', label:'💎 Recharger', id:'recharge' },
     { href:'guide.html',    label:'📖 Guide',     id:'guide' },
     { href:'faq.html',      label:'❓ FAQ',       id:'faq' },
+    { href:'compte.html',   label:'👤 Mon Compte',id:'compte' },
   ];
   return `
   <nav class="navbar">
-    <a href="index.html" class="nav-logo">
+    <a href="index.html" class="nav-logo" id="navLogo">
       <div class="nav-logo-icon">💎</div>
       <div class="nav-logo-text">GEM <span>NATION</span></div>
     </a>
     <div class="nav-links">
       ${links.map(l=>`<a href="${l.href}" class="nav-link ${activePage===l.id?'active':''}">${l.label}</a>`).join('')}
-      <a href="admin.html" class="nav-link" id="historyLink" style="display:none">📋 Historique</a>
-      <button class="nav-link admin-btn" id="adminBtn" onclick="toggleAdmin()">🔒 Admin</button>
     </div>
   </nav>`;
 }
 
-// Footer HTML
+// ── SECRET ADMIN ACCESS ──
+// Triple-clic sur le logo 💎 pour accéder à l'admin
+let _logoClicks = 0;
+let _logoTimer = null;
+document.addEventListener('click', function(e) {
+  const logo = document.getElementById('navLogo');
+  if (logo && logo.contains(e.target)) {
+    _logoClicks++;
+    clearTimeout(_logoTimer);
+    _logoTimer = setTimeout(() => { _logoClicks = 0; }, 800);
+    if (_logoClicks >= 3) {
+      _logoClicks = 0;
+      const p = prompt("");
+      if (p === "gem2025@nation#secure") {
+        window.location.href = 'admin.html';
+      }
+    }
+  }
+});
 function footerHTML() {
   return `
   <footer>
@@ -132,28 +149,4 @@ function footerHTML() {
   </a>`;
 }
 
-// Admin management
-let isAdmin = false;
-function toggleAdmin() {
-  if (!isAdmin) {
-    const p = prompt("Mot de passe admin :");
-    if (p === "admin123") {
-      isAdmin = true;
-      document.getElementById('adminBtn').className = 'nav-link admin-active';
-      document.getElementById('adminBtn').textContent = '🔓 Admin';
-      const histLink = document.getElementById('historyLink');
-      if (histLink) histLink.style.display = 'inline-flex';
-      showToast("Mode admin activé ✅");
-      if (typeof onAdminActivated === 'function') onAdminActivated();
-    } else {
-      showToast("Mot de passe incorrect", "error");
-    }
-  } else {
-    isAdmin = false;
-    document.getElementById('adminBtn').className = 'nav-link admin-btn';
-    document.getElementById('adminBtn').textContent = '🔒 Admin';
-    const histLink = document.getElementById('historyLink');
-    if (histLink) histLink.style.display = 'none';
-    if (typeof onAdminDeactivated === 'function') onAdminDeactivated();
-  }
-}
+
